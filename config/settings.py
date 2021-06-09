@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'mptt',
     'rest_framework',
     'debug_toolbar',
-    'adverts.apps.AdvertsConfig',
+    'apps.adverts',
     'corsheaders',
     'generic_relations',
 ]

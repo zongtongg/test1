@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
-from adverts.models import Region, Category, Attribute
+from apps.adverts.models import Region, Category, Attribute
 
 
 class BaseTreeSerializer(serializers.Serializer):

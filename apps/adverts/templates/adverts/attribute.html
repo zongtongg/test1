@@ -9,7 +9,18 @@
 {{ region.name }}
 {{ region.get_root }}
 {% for item in category.all_attributes %}
-<p>{{ item }}</p>
+    {% if item.is_select %}
+        <select name="attrs" id="1">
+        {% for variant in item.variants %}
+            <option value="{{ variant }}">{{ variant }}</option>
+        {% endfor %}
+        </select>
+        <p>{{ item }}</p>
+        
+    {% else %}
+        <label for="">{{ item.name }}</label>
+        <input type="text">
+    {% endif %}
 {% endfor %}
 <p>{{ category.all_attributes }}</p>
 </body>

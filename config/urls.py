@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import include
 from django.urls import path
 
+from apps.adverts import  urls as adverts_urls
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('adverts.urls')),
+    path('api/', include(adverts_urls)),
     path('__debug__/', include(debug_toolbar.urls)),
 ]

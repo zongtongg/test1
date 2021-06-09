@@ -1,6 +1,6 @@
 from django.urls import path
 
-from adverts.views import RegionView, CategoryView, test, SingleCategoryView
+from apps.adverts.views import RegionView, CategoryView, test, SingleCategoryView
 
 urlpatterns = [
     path('regions/<int:pk>/', RegionView.as_view()),

@@ -1,8 +1,8 @@
 from django.contrib import admin
 from mptt.admin import DraggableMPTTAdmin
 
-from adverts.helpers.html_helper import get_mptt_indented_menu
-from adverts.models import Region, Category, Attribute
+from apps.adverts.helpers.html_helper import get_mptt_indented_menu
+from apps.adverts.models import Region, Category, Attribute
 
 
 class CustomMPTTModelAdmin(DraggableMPTTAdmin):

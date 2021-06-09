@@ -75,6 +75,9 @@ class Attribute(models.Model):
     )
     sort = models.IntegerField()
 
+    def is_select(self):
+        return len(self.variants) > 1
+
 
 
 
