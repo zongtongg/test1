@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+{{ region.name }}
+{{ region.get_root }}
+{% for item in category.all_attributes %}
+<p>{{ item }}</p>
+{% endfor %}
+<p>{{ category.all_attributes }}</p>
+</body>
+</html>
