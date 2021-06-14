@@ -94,7 +94,14 @@ CACHES = {
 }
 
 DATABASES = {
-    'default': env.db('DB_URL')
+    # 'default': env.db('DB_URL')
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS': {
+            'read_default_file': '/home/dd/PycharmProjects/samplesite/samplesite/my.cnf',
+        }
+    }
+
 }
 
 

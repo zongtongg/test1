@@ -5,20 +5,21 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_redis import get_redis_connection
 
-from apps.adverts.models import Region, Category, Attribute
-from apps.adverts.serializers import RegionsSerializer, CategoriesSerializer, SingleCategorySerializer
+from apps.adverts.models import Location, Category, Attribute
+from apps.adverts.serializers import LocationsSerializer, CategoriesSerializer, SingleCategorySerializer
 
 
 def test(request):
-    category = Category.objects.get(pk=6)
-    return render(request, 'adverts/attribute.html', {'category': category})
+    attributes = Attribute.objects.filter(name='collor')
 
-class RegionView(APIView):
+    return render(request, 'adverts/attribute.html', {'attributes': attributes})
+
+class LocationView(APIView):
     def get(self, request, pk):
-        region = Region.objects.get(pk=pk)
+        location = Location.objects.get(pk=pk)
         key = request.META.get('PATH_INFO')
-        result = get_items_from_cache(key, region, RegionsSerializer)
-        return Response({'regions': result})
+        result = get_items_from_cache(key, location, LocationsSerializer)
+        return Response({'locations': result})
 
 
 class CategoryView(APIView):

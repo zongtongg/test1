@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_recursive.fields import RecursiveField
 
-from apps.adverts.models import Region, Category, Attribute
+from apps.adverts.models import Location, Category, Attribute
 
 
 class BaseTreeSerializer(serializers.Serializer):
@@ -15,11 +15,11 @@ class BaseTreeSerializer(serializers.Serializer):
         fields = ('id', 'name', 'slug', 'path', 'children')
 
 
-class RegionsSerializer(BaseTreeSerializer):
+class LocationsSerializer(BaseTreeSerializer):
 
     class Meta:
-        model = Region
-
+        model = Location
+        fields = ('id', 'name', 'slug', 'path', 'children')
 
 class AttributeSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
