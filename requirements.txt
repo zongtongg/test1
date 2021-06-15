@@ -25,3 +25,4 @@ sqlparse==0.4.1
 typing-extensions==3.10.0.0
 zipp==3.4.1
 transliterate==1.10.2
+django-cities-light==3.8.1

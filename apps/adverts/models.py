@@ -91,7 +91,7 @@ class Attribute(models.Model):
     category = TreeForeignKey(Category, on_delete=models.CASCADE, related_name='attribute_set')
     name = models.CharField(max_length=200, validators=[])
     type = models.CharField(max_length=50, choices=Kinds.choices)
-    # required = models.BooleanField()
+    required = models.BooleanField(default=False)
     variants = ArrayField(
         models.CharField(max_length=255, default='', blank=True, null=True),
         size=10,

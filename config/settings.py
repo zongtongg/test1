@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'corsheaders',
     'generic_relations',
+    'cities_light',
 ]
 
 if DEBUG:
@@ -94,13 +95,13 @@ CACHES = {
 }
 
 DATABASES = {
-    # 'default': env.db('DB_URL')
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/home/dd/PycharmProjects/samplesite/samplesite/my.cnf',
-        }
-    }
+    'default': env.db('DB_URL')
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'OPTIONS': {
+    #         'read_default_file': '/home/dd/PycharmProjects/samplesite/samplesite/my.cnf',
+    #     }
+    # }
 
 }
 
@@ -154,3 +155,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
 )
+
+CITIES_LIGHT_TRANSLATION_LANGUAGES = ['ua', 'ru']
+CITIES_LIGHT_INCLUDE_COUNTRIES = ['UA']
+CITIES_LIGHT_INCLUDE_CITY_TYPES = ['PPL', 'PPLA', 'PPLA2', 'PPLA3', 'PPLA4', 'PPLC', 'PPLF', 'PPLG', 'PPLL', 'PPLR', 'PPLS', 'STLMT',]
