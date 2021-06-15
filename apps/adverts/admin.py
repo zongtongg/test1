@@ -17,6 +17,7 @@ class CustomMPTTModelAdmin(DraggableMPTTAdmin):
 
 class LocationMPTTModelAdmin(CustomMPTTModelAdmin):
     list_display_links = ('indented_name',)
+    search_fields = ('name',)
 
     def indented_name(self, instance):
         return super().indented_name(instance)

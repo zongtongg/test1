@@ -14,6 +14,7 @@ def test(request):
 
     return render(request, 'adverts/attribute.html', {'attributes': attributes})
 
+
 class LocationView(APIView):
     def get(self, request, pk):
         location = Location.objects.get(pk=pk)

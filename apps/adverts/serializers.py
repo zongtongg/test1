@@ -8,7 +8,8 @@ class BaseTreeSerializer(serializers.Serializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
     name = serializers.CharField(max_length=50)
     slug = serializers.SlugField(max_length=50)
-    path = serializers.ReadOnlyField(source='get_full_slug')
+    # path = serializers.ReadOnlyField(source='get_full_name')
+    address = serializers.CharField(max_length=255)
     children = serializers.ListField(read_only=True, required=False, source='get_children', child=RecursiveField())
 
     class Meta:
@@ -20,6 +21,7 @@ class LocationsSerializer(BaseTreeSerializer):
     class Meta:
         model = Location
         fields = ('id', 'name', 'slug', 'path', 'children')
+
 
 class AttributeSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)

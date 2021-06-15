@@ -1,3 +1,6 @@
+from django.utils.text import slugify
+from transliterate import translit, get_available_language_codes
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
@@ -6,13 +9,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 # from django.db.models.query import Prefetch
 from django.db.models import Prefetch
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.shortcuts import redirect
 from mptt.models import MPTTModel, TreeForeignKey, raise_if_unsaved
 from json import JSONEncoder
-
-# from adverts.helpers.json_parse import StringParse
-# from apps.adverts.validators import attribute_name_validator
 
 
 # class Location(models.Model):
@@ -26,7 +26,8 @@ from json import JSONEncoder
 
 class Location(MPTTModel):
     name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50, default=None, null=True)
+    slug = models.SlugField(unique=True, max_length=50, default=None, null=True, blank=True)
+    address = models.CharField(max_length=255, unique=True, default=None, null=True, blank=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
     def __str__(self):
@@ -36,6 +37,16 @@ class Location(MPTTModel):
         names = self.get_ancestors(include_self=True).values('name')
         full_name = '/'.join(map(lambda x: x['name'], names))
         return full_name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.name and not self.slug:
+            self.slug = slugify(translit(self.get_full_name().replace('/', '-'), 'ru', reversed=True))
+        if self.name and not self.address:
+            self.address = self.get_full_name()
+        super().save(*args, **kwargs)
+
+
 
     class Meta:
         ordering = ['lft']
@@ -69,6 +80,7 @@ class Category(MPTTModel):
     class MPTTMeta:
         order_insertion_by = ['name']
 
+
 class Attribute(models.Model):
 
     class Kinds(models.TextChoices):
@@ -77,7 +89,6 @@ class Attribute(models.Model):
         TYPE_FLOAT = 'float', 'Float'
     # category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='attribute_set')
     category = TreeForeignKey(Category, on_delete=models.CASCADE, related_name='attribute_set')
-    # category_id = models.PositiveIntegerField()
     name = models.CharField(max_length=200, validators=[])
     type = models.CharField(max_length=50, choices=Kinds.choices)
     # required = models.BooleanField()
@@ -161,4 +172,6 @@ class Attribute(models.Model):
 
     class Meta:
         unique_together = ('category', 'name')
+
+
 
