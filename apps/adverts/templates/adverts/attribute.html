@@ -5,23 +5,35 @@
     <title>Title</title>
 </head>
 <body>
+{% load filters %}
 
-{{ region.name }}
-{{ region.get_root }}
-{% for item in category.all_attributes %}
-    {% if item.is_select %}
-        <select name="attrs" id="1">
-        {% for variant in item.variants %}
-            <option value="{{ variant }}">{{ variant }}</option>
+<form action="" method="post">
+    {% csrf_token %}
+    <label for="region">location</label>
+    <select name="location" id="1">
+        {% for region in location %}
+            <option value="{{ region.id }}">{{ region.name }}</option>
         {% endfor %}
-        </select>
-        <p>{{ item }}</p>
-        
-    {% else %}
-        <label for="">{{ item.name }}</label>
-        <input type="text">
+    </select>
+    <label for="title">Title</label>
+    <input type="text" name="title">
+    <label for="price">Price</label>
+    <input type="number" name="price">
+    <label for="currency">Currency</label>
+    <input type="text" name="currency">
+    {% if category %}
+        {% for attr in category.all_attributes %}
+            <label for="attr">{{ attr.name }}</label>
+            <input type="number" name="attr.{{ attr.id }}">
+        {% endfor %}
     {% endif %}
-{% endfor %}
-<p>{{ category.all_attributes }}</p>
+    <input type="submit" value="send">
+
+
+</form>
+<p>{% for attr in advert.category.all_attributes %}
+   {{ attr.name }} -- {{ advert|advert_attribute_value:attr.id  }}
+{% endfor %}</p>
 </body>
 </html>
+

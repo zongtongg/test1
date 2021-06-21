@@ -1,5 +1,6 @@
-from django.utils.text import slugify
 from transliterate import translit, get_available_language_codes
+from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -15,19 +16,10 @@ from mptt.models import MPTTModel, TreeForeignKey, raise_if_unsaved
 from json import JSONEncoder
 
 
-# class Location(models.Model):
-#     test_id = models.IntegerField()
-#     region = models.CharField(max_length=255)
-#     name = models.CharField(max_length=255)
-#
-#     class Meta:
-#         db_table = 'location'
-
-
 class Location(MPTTModel):
     name = models.CharField(max_length=50)
-    slug = models.SlugField(unique=True, max_length=50, default=None, null=True, blank=True)
-    address = models.CharField(max_length=255, unique=True, default=None, null=True, blank=True)
+    slug = models.SlugField(unique=False, max_length=255, default=None, null=True, blank=True)
+    address = models.CharField(max_length=255, unique=False, default=None, null=True, blank=True)
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
     def __str__(self):
@@ -41,12 +33,13 @@ class Location(MPTTModel):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.name and not self.slug:
-            self.slug = slugify(translit(self.get_full_name().replace('/', '-'), 'ru', reversed=True))
+            self.slug = slugify(translit(self.get_full_name().replace('/', '-'), 'uk', reversed=True))
         if self.name and not self.address:
             self.address = self.get_full_name()
         super().save(*args, **kwargs)
 
-
+    # def get_child(self):
+    #     return self.children.select_related('parent').filter(level__in=[self.level + 1])
 
     class Meta:
         ordering = ['lft']
@@ -73,6 +66,9 @@ class Category(MPTTModel):
 
     def parent_attributes(self):
         return self.parent.all_attributes() if self.parent else []
+
+    def get_name(self):
+        return self.name
 
     class Meta:
         ordering = ['lft']
@@ -174,4 +170,44 @@ class Attribute(models.Model):
         unique_together = ('category', 'name')
 
 
+class AdvertsAdvert(models.Model):
+    STATUS_DRAFT = 'draft'
+    STATUS_MODERATION = 'moderation'
+    STATUS_ACTIVE = 'active'
+    STATUS_CLOSED = 'closed'
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_set')
+    category = TreeForeignKey(Category, on_delete=models.PROTECT, related_name='category_set')
+    location = TreeForeignKey(Location, on_delete=models.PROTECT, related_name='location_set')
+    title = models.CharField(max_length=255)
+    price = models.FloatField()
+    currency = models.CharField(max_length=50)
+    content = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=50, default=STATUS_DRAFT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    # value = models.ManyToManyField('Value', related_name='value_set')
+
+    def get_value(self, attribute_id):
+        for value in self.advert_to_attribute.all():
+            if value.attribute.id == attribute_id:
+                return value.value
+        return
+
+    def get_all_values(self):
+        return self.advert_to_attribute.all()
+
+    def get_category(self):
+        return self.category
+
+
+class Value(models.Model):
+    advert = models.ForeignKey(AdvertsAdvert, on_delete=models.PROTECT, related_name='advert_to_attribute')
+    attribute = models.ForeignKey(Attribute, on_delete=models.PROTECT, related_name='attribute_to_advert')
+    value = models.CharField(max_length=255)
+
+    def get_attribute(self):
+        return self.attribute.name
+
+    def get_value(self):
+        return self.value
