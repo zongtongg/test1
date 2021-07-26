@@ -2,6 +2,7 @@ from django.core.cache import cache
 from django.db.models import Prefetch
 from django.shortcuts import render
 from mptt.templatetags.mptt_tags import cache_tree_children
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_redis import get_redis_connection
@@ -70,6 +71,35 @@ class AdvertView(APIView):
         # advert.objects.selvect_related('advert_to_attribute')
         data = AdvertSerializer(advert).data
         return Response({'advert': data})
+
+
+class AdvertCreateView(APIView):
+    def post(self, request):
+        if request.method == 'POST':
+            user = request.user
+            category = Category.objects.get(pk=request.data.get('category_id'))
+            location = Location.objects.get(pk=request.data.get('location_id'))
+            advert = AdvertsAdvert(user=user,
+                                   category=category,
+                                   location=location,
+                                   title=request.data.get('title'),
+                                   price=request.data.get('price'),
+                                   currency=request.data.get('currency')
+                                   )
+            # print('user=', user)
+            advert.save()
+            for attribute in request.data.get('attributes'):
+                attr = Attribute.objects.get(pk=attribute.get('id'))
+                if attr in advert.category.all_attributes():
+
+                    value = attribute.get('value')
+                    val = Value(advert=advert, attribute=attr, value=value)
+                    val.save()
+            serializer = AdvertSerializer(advert)
+            if serializer:
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_items_from_cache(key, item, serializer):

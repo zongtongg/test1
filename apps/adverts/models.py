@@ -1,3 +1,4 @@
+from cities_light.models import City as BaseCity
 from transliterate import translit, get_available_language_codes
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -14,6 +15,19 @@ from django.db.models.signals import pre_save, post_save
 from django.shortcuts import redirect
 from mptt.models import MPTTModel, TreeForeignKey, raise_if_unsaved
 from json import JSONEncoder
+
+
+# class City(BaseCity):
+#
+#     def get_display_name(self):
+#         if self.region_id:
+#             return '%s, %s, %s' % (self.alternate_names, self.region.alternate_names,
+#                                    self.country.alternate_names)
+#         else:
+#             return '%s, %s' % (self.alternate_names, self.country.alternate_names)
+#
+    # class Meta:
+        # db_table = 'cities_light_city'
 
 
 class Location(MPTTModel):
@@ -142,7 +156,7 @@ class Attribute(models.Model):
         for category in categories:
             attributes = category.attribute_set.filter(category_id__in=ids)
             for attr in attributes:
-                if attr.name == self.name:
+                if attr.name == self.name and not self.pk:
                     return False
         return True
 
@@ -179,6 +193,7 @@ class AdvertsAdvert(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_set')
     category = TreeForeignKey(Category, on_delete=models.PROTECT, related_name='category_set')
     location = TreeForeignKey(Location, on_delete=models.PROTECT, related_name='location_set')
+    # location = models.ForeignKey(City, on_delete=models.PROTECT, related_name='location_set')
     title = models.CharField(max_length=255)
     price = models.FloatField()
     currency = models.CharField(max_length=50)
@@ -206,8 +221,14 @@ class Value(models.Model):
     attribute = models.ForeignKey(Attribute, on_delete=models.PROTECT, related_name='attribute_to_advert')
     value = models.CharField(max_length=255)
 
+    def get_attribute_id(self):
+        return self.attribute_id
+
     def get_attribute(self):
         return self.attribute.name
 
     def get_value(self):
         return self.value
+
+    class Meta:
+        unique_together = ('advert', 'attribute')

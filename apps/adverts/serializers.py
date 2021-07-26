@@ -34,10 +34,11 @@ class AttributeSerializer(serializers.ModelSerializer):
         serializers.CharField(max_length=255)
     )
     sort = serializers.IntegerField(read_only=True)
+    is_select = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Attribute
-        fields = ('id', 'name', 'type', 'variants', 'sort')
+        fields = ('id', 'name', 'type', 'variants', 'sort', 'is_select')
 
 
 class CategoriesSerializer(BaseTreeSerializer):
@@ -63,58 +64,84 @@ class SingleCategorySerializer(serializers.ModelSerializer):
 
 
 class ValueSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(max_length=50, source='get_attribute')
+    id = serializers.IntegerField(source='get_attribute_id')
+    name = serializers.CharField(max_length=50, source='get_attribute', read_only=True)
     value = serializers.CharField(max_length=50, source='get_value')
 
     class Meta:
         model = Value
-        fields = ('name', 'value')
-
+        # fields = ('id', 'name', 'value')
+        fields = '__all__'
 
 class AdvertUserSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
-    username = serializers.CharField(max_length=255)
+    username = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = User
+        depth = 2
         fields = ('id', 'username')
 
 
 class AdvertCategorySerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
-    name = serializers.CharField(max_length=255)
+    name = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = Category
-        depth = 1
+        depth = 2
         fields = ('id', 'name')
 
 
 class AdvertLocationSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
-    name = serializers.CharField(max_length=255)
+    name = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = Location
-        depth = 1
+        depth = 2
         fields = ('id', 'name')
 
 
 class AdvertSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
     user = AdvertUserSerializer(many=False)
+    # user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     category = AdvertCategorySerializer(many=False)
     location = AdvertLocationSerializer(many=False)
     title = serializers.CharField(max_length=255)
     price = serializers.FloatField()
     currency = serializers.CharField(max_length=50)
     # content = serializers.(blank=True, null=True)
-    status = serializers.CharField(max_length=50)
-    created_at = serializers.DateTimeField()
-    updated_at = serializers.DateTimeField()
+    status = serializers.CharField(max_length=50, default=AdvertsAdvert.STATUS_DRAFT)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
     attributes = ValueSerializer(many=True, source='get_all_values', read_only=False)
 
     class Meta:
         model = AdvertsAdvert
-        fields = ('user', 'category', 'location', 'title', 'price', 'currency', 'status', 'created_at', 'updated_at', 'attributes')
+        # depth = 1
+        fields = ('id', 'user', 'category', 'location', 'title', 'price', 'currency', 'status', 'created_at',
+                  'updated_at', 'attributes')
 
+
+
+data = {
+"user_id":1,
+"category_id":3,
+"location_id":3,
+"title": "LG",
+"price": 100,
+"currency": "$",
+"attributes": [
+    {
+        "id": 5,
+        "value": "red"
+    },
+    {
+        "id": 5,
+        "value": "red"
+    }
+]
+}
 
